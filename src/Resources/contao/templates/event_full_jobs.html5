@@ -1,0 +1,86 @@
+<div class="event layout_full block<?= $this->class ?>">
+  <h1 style="display:none"><?= $this->title ?></h1>
+  <p class="info"><time datetime="<?= $this->datetime ?>"><?= $this->date ?><?php if ($this->time): ?>, <?= $this->time ?><?php endif; ?></time></p>
+
+  <?php if ($this->recurring): ?>
+    <p class="recurring"><?= $this->recurring ?><?php if ($this->until) echo ' ' . $this->until; ?>.</p>
+  <?php endif; ?>
+
+  <?php if ($this->hasDetails): ?>
+    <?= $this->details ?>
+  <?php else: ?>
+    <div class="ce_text block">
+      <?php if (!$this->addBefore): ?>
+        <?= $this->teaser ?>
+      <?php endif; ?>
+
+      <?php if ($this->addImage): ?>
+        <?php $this->insert('image', $this->arrData); ?>
+      <?php endif; ?>
+
+      <?php if ($this->addBefore): ?>
+        <?= $this->teaser ?>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
+
+ <?php if ($this->location):?>
+     <p class="location" style="display:none"><?= $this->locationLabel ?>: <span<?= $this->location ?><span class="address" style="display:none">Straße. Nummer<br>
+Postleitzahl Ort<br>
+Land</span></span></p>
+  <?php endif; ?>
+
+  <?php if ($this->enclosure): ?>
+    <ul class="enclosure">
+      <?php foreach ($this->enclosure as $enclosure): ?>
+        <li class="download-element ext-<?= $enclosure['extension'] ?>">
+           <a href="<?= $enclosure['href'] ?>" title="<?= $enclosure['title'] ?>"><?= $enclosure['link'] ?> <span class="size">(<?= $enclosure['filesize'] ?>)</span></a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
+
+    <?php
+    $gsd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'JobPosting',
+        'title' => $this->job_title ? $this->job_title : $this->title,
+        'description' => $this->job_description ? $this->job_description : $this->teaser,
+        'hiringOrganization' => [
+            '@type' => 'Organization',
+            'name' => $this->job_employer ? $this->job_employer : 'Employer',
+            'sameAs' => $this->job_website ? $this->job_website : 'https://www.'.$_SERVER['HTTP_HOST'],
+        ],
+        'employmentType' => $this->job_employment_type,
+        'datePosted' => $this->job_start_date ? date('Y-m-d H:i', $this->job_start_date) : date('Y-m-d H:i',  $this->startTime),
+        'validThrough' => $this->job_expire_date ? date('Y-m-d H:i', $this->job_expire_date) : date('Y-m-d H:i',  $this->endTime),
+        'jobLocation' => [
+                '@type' => 'Place',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => $this->job_street,
+                    'addressLocality' => $this->job_city,
+                    'postalCode' => $this->job_postal,
+                    'addressCountry' => $this->job_country,
+                    'addressRegion' => ($this->address_region) ? $this->address_region : $this->job_region,
+                ],
+        ],
+        "baseSalary" => [
+        "@type" => "MonetaryAmount",
+        "currency" => "EURO",
+        "value" => [
+            "@type" => "QuantitativeValue",
+            "value" => $this->job_salary,
+            "unitText" => "MONTH"
+            ]
+        ]
+    ];
+    if ($this->addImage) $gsd['image'] = '{{env::path}}'.str_replace(" ","%20",$this->singleSRC);
+    ?>
+    <?php if (is_array($gsd) && count($gsd) > 0): ?>
+        <script type="application/ld+json">
+            <?php echo json_encode($gsd); ?>
+        </script>
+    <?php endif; ?>
+
+</div>

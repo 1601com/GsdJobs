@@ -1,0 +1,31 @@
+{
+    "name": "agentur1601com/gsd-jobs",
+    "type": "contao-bundle",
+    "description": "Extends the calendar bundle of contao with fields that simplify the implementation of jobs from google structured data",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lukas M. Beck",
+            "homepage": "https://github.com/LBeckX"
+        },
+        {
+            "name": "Frank Ficzak",
+            "homepage": "https://github.com/ff1601com"
+        }
+    ],
+    "require": {
+        "php": "^5.6 || ^7.0"
+    },
+    "conflict": {
+        "contao/core": "*",
+        "contao/manager-plugin": "<2.0 || >=3.0"
+    },
+    "extra": {
+        "contao-manager-plugin": "Agentur1601com\\GsdJobs\\ContaoManager\\Plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Agentur1601com\\GsdJobs\\": "src/"
+        }
+    }
+}

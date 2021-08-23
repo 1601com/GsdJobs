@@ -1,0 +1,60 @@
+<div class="event layout_list <?= $this->classList ?> jobList ">
+    <p class="time">
+        <time datetime="<?= $this->datetime ?>"
+        ><?= $this->date ?><?php if ($this->time): ?>, <?= $this->time ?><?php endif; ?></time>
+    </p>
+    <div class="subheader"><?= $this->teaser ?></div>
+    <h3><a href="<?= $this->href ?>" title="<?= $this->title ?> (<?php if ($this->day) echo $this->day . ', '; ?><?= $this->date ?><?php if ($this->time) echo ', ' . $this->time; ?>)"<?= $this->target ?>><?= $this->link ?></a></h3>
+    <p class="location">
+        <span><?= $this->location ?></span>
+    </p>
+
+    <?php if ($this->hasDetails): ?>
+        <p class="more"><a href="<?= $this->href ?>" title="<?= $this->readMore ?>"<?= $this->target ?>
+            ><?= $this->more ?><span class="invisible"> <?= $this->link ?></span></a>
+        </p>
+    <?php endif; ?>
+
+    <?php
+    $gsd = [
+        '@context' => 'https://schema.org',
+        '@type' => 'JobPosting',
+        'title' => $this->job_title ? $this->job_title : $this->title,
+        'description' => $this->job_description ? $this->job_description : $this->teaser,
+        'hiringOrganization' => [
+            '@type' => 'Organization',
+            'name' => $this->job_employer ? $this->job_employer : 'Employer',
+            'sameAs' => $this->job_website ? $this->job_website : 'https://www.'.$_SERVER['HTTP_HOST'],
+        ],
+        'employmentType' => $this->job_employment_type,
+        'datePosted' => $this->job_start_date ? date('Y-m-d H:i', $this->job_start_date) : date('Y-m-d H:i',  $this->startTime),
+        'validThrough' => $this->job_expire_date ? date('Y-m-d H:i', $this->job_expire_date) : date('Y-m-d H:i',  $this->endTime),
+        'jobLocation' => [
+            '@type' => 'Place',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $this->job_street,
+                'addressLocality' => $this->job_city,
+                'postalCode' => $this->job_postal,
+                'addressCountry' => $this->job_country,
+                'addressRegion' => ($this->address_region) ? $this->address_region : $this->job_region,
+            ],
+        ],
+        "baseSalary" => [
+            "@type" => "MonetaryAmount",
+            "currency" => "EURO",
+            "value" => [
+                "@type" => "QuantitativeValue",
+                "value" => $this->job_salary,
+                "unitText" => "MONTH"
+            ]
+        ]
+    ];
+    if ($this->addImage) $gsd['image'] = '{{env::path}}'.str_replace(" ","%20",$this->singleSRC);
+    ?>
+    <?php if (is_array($gsd) && count($gsd) > 0): ?>
+        <script type="application/ld+json">
+            <?php echo json_encode($gsd); ?>
+        </script>
+    <?php endif; ?>
+</div>
